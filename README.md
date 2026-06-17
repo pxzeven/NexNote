@@ -35,7 +35,6 @@ Here are some previews of NexNote in different themes:
   <img src="./assets/preview-sunset.png" width="48%" alt="Sunset Theme">
 </p>
 
-*(Note: Ensure you place the preview screenshots in the `assets/` folder)*
 
 ## 🚀 Installation (macOS)
 
@@ -51,7 +50,7 @@ To build the project locally, you will need [Node.js](https://nodejs.org/) and [
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/NexNote.git
+git clone https://github.com/pxzeven/NexNote.git
 cd NexNote
 
 # Install dependencies
