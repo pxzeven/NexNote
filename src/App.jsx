@@ -24,11 +24,6 @@ function App() {
     }
   }, [theme]);
 
-  useEffect(() => {
-    loadNotes();
-    checkForUpdates();
-  }, []);
-
   const checkForUpdates = async () => {
     try {
       const update = await check();
@@ -40,6 +35,22 @@ function App() {
     }
   };
 
+  const loadNotes = async () => {
+    try {
+      const loadedNotes = await invoke('get_notes');
+      setNotes(loadedNotes);
+      const loadedTrashed = await invoke('get_trashed_notes');
+      setTrashedNotes(loadedTrashed);
+    } catch (err) {
+      console.error("Failed to load notes", err);
+    }
+  };
+
+  useEffect(() => {
+    loadNotes();
+    checkForUpdates();
+  }, []);
+
   const handleInstallUpdate = async () => {
     if (!updateInfo) return;
     setIsUpdating(true);
@@ -49,17 +60,6 @@ function App() {
     } catch (err) {
       console.error("Failed to install update", err);
       setIsUpdating(false);
-    }
-  };
-
-  const loadNotes = async () => {
-    try {
-      const loadedNotes = await invoke('get_notes');
-      setNotes(loadedNotes);
-      const loadedTrashed = await invoke('get_trashed_notes');
-      setTrashedNotes(loadedTrashed);
-    } catch (err) {
-      console.error("Failed to load notes", err);
     }
   };
 
@@ -224,12 +224,10 @@ function App() {
         onRestoreNote={handleRestoreNote}
         onPermanentlyDeleteNote={handlePermanentlyDeleteNote}
         onEmptyTrash={handleEmptyTrash}
-        updateInfo={updateInfo}
-        isUpdating={isUpdating}
-        onInstallUpdate={handleInstallUpdate}
       />
       {activeNote ? (
         <Editor 
+          key={activeNote.id}
           note={activeNote} 
           isReadOnly={viewMode === 'trash'}
           theme={theme}

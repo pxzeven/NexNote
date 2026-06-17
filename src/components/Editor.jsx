@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Columns, LayoutPanelLeft, Trash2, Copy, Check, Palette, Menu, X, Info, Settings2, ChevronDown, ChevronRight, Type, PenTool, RotateCcw } from 'lucide-react';
+import { Columns, LayoutPanelLeft, Trash2, Copy, Check, Palette, X, Info, Settings2, ChevronDown, ChevronRight, Type, PenTool, RotateCcw } from 'lucide-react';
 
 function Editor({ note, isReadOnly, theme: appTheme, onSave, onDelete }) {
   const [title, setTitle] = useState(note.title);
@@ -135,7 +135,7 @@ function Editor({ note, isReadOnly, theme: appTheme, onSave, onDelete }) {
       }
       previousNoteId.current = note.id;
     }
-  }, [note.id]);
+  }, [note.id, note.title, note.content]);
 
   // Debounced auto-save
   useEffect(() => {
@@ -147,7 +147,7 @@ function Editor({ note, isReadOnly, theme: appTheme, onSave, onDelete }) {
     }, 1000); // 1s debounce
 
     return () => clearTimeout(timer);
-  }, [title, content, note.id, isReadOnly]);
+  }, [title, content, note.id, note.title, note.content, isReadOnly, onSave]);
 
   // Check if it's a markdown file (or no extension) for preview functionality
   const isMarkdown = !title.includes('.') || title.toLowerCase().endsWith('.md');

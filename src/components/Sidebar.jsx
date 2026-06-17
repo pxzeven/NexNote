@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { open } from '@tauri-apps/plugin-shell';
 import { SquarePen, Trash2, Search, Pin, ArchiveRestore, FileText, PinOff, Edit2, Copy, Monitor, Sun, Moon, Palette } from 'lucide-react';
 
-function Sidebar({ notes, trashedNotes, viewMode, setViewMode, theme, setTheme, activeNoteId, onSelectNote, onCreateNote, onDeleteNote, onDuplicateNote, onRenameNote, onRestoreNote, onPermanentlyDeleteNote, onEmptyTrash, updateInfo, isUpdating, onInstallUpdate }) {
+function Sidebar({ notes, trashedNotes, viewMode, setViewMode, theme, setTheme, activeNoteId, onSelectNote, onCreateNote, onDeleteNote, onDuplicateNote, onRenameNote, onRestoreNote, onPermanentlyDeleteNote, onEmptyTrash }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [editingNoteId, setEditingNoteId] = useState(null);
   const [editTitle, setEditTitle] = useState('');
@@ -67,19 +67,18 @@ function Sidebar({ notes, trashedNotes, viewMode, setViewMode, theme, setTheme, 
 
   const getPreview = (content) => {
     if (!content) return 'No additional text';
-    const preview = content.replace(/[\r\n]+/g, ' ').replace(/[#*`_~>\[\]]/g, '').trim();
+    const preview = content.replace(/[\r\n]+/g, ' ').replace(/[#*`_~>[\]]/g, '').trim();
     return preview ? preview.substring(0, 40) : 'No additional text';
   };
-
-  const currentNotes = viewMode === 'notes' ? notes : (trashedNotes || []);
   
   const filteredNotes = useMemo(() => {
+    const currentNotes = viewMode === 'notes' ? notes : (trashedNotes || []);
     return currentNotes.filter(note => {
       const titleMatch = (note.title || '').toLowerCase().includes(searchQuery.toLowerCase());
       const contentMatch = (note.content || '').toLowerCase().includes(searchQuery.toLowerCase());
       return titleMatch || contentMatch;
     });
-  }, [currentNotes, searchQuery]);
+  }, [viewMode, notes, trashedNotes, searchQuery]);
 
   const sortedNotes = useMemo(() => {
     return [...filteredNotes].sort((a, b) => {
