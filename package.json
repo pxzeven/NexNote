@@ -1,7 +1,7 @@
 {
   "name": "nexnote-tauri",
   "private": true,
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A simple offline note taking app for Macbook",
   "author": "ZEVEN",
   "type": "module",
