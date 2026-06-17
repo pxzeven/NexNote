@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { open } from '@tauri-apps/plugin-shell';
 import { SquarePen, Trash2, Search, Pin, ArchiveRestore, FileText, PinOff, Edit2, Copy, Monitor, Sun, Moon, Palette } from 'lucide-react';
 
-function Sidebar({ notes, trashedNotes, viewMode, setViewMode, theme, setTheme, activeNoteId, onSelectNote, onCreateNote, onDeleteNote, onDuplicateNote, onRenameNote, onRestoreNote, onPermanentlyDeleteNote, onEmptyTrash }) {
+function Sidebar({ notes, trashedNotes, viewMode, setViewMode, theme, setTheme, activeNoteId, onSelectNote, onCreateNote, onDeleteNote, onDuplicateNote, onRenameNote, onRestoreNote, onPermanentlyDeleteNote, onEmptyTrash, updateInfo, isUpdating, onInstallUpdate }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [editingNoteId, setEditingNoteId] = useState(null);
   const [editTitle, setEditTitle] = useState('');

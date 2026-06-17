@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
+import { check } from '@tauri-apps/plugin-updater';
+import { relaunch } from '@tauri-apps/plugin-process';
 import Sidebar from './components/Sidebar';
 import Editor from './components/Editor';
 
@@ -9,6 +11,8 @@ function App() {
   const [activeNoteId, setActiveNoteId] = useState(null);
   const [viewMode, setViewMode] = useState('notes'); // 'notes' or 'trash'
   const [theme, setTheme] = useState(() => localStorage.getItem('nexnote-theme') || 'system');
+  const [updateInfo, setUpdateInfo] = useState(null);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('nexnote-theme', theme);
@@ -22,7 +26,31 @@ function App() {
 
   useEffect(() => {
     loadNotes();
+    checkForUpdates();
   }, []);
+
+  const checkForUpdates = async () => {
+    try {
+      const update = await check();
+      if (update) {
+        setUpdateInfo(update);
+      }
+    } catch (err) {
+      console.error("Failed to check for updates", err);
+    }
+  };
+
+  const handleInstallUpdate = async () => {
+    if (!updateInfo) return;
+    setIsUpdating(true);
+    try {
+      await updateInfo.downloadAndInstall();
+      await relaunch();
+    } catch (err) {
+      console.error("Failed to install update", err);
+      setIsUpdating(false);
+    }
+  };
 
   const loadNotes = async () => {
     try {
@@ -158,6 +186,11 @@ function App() {
     const note = notes.find(n => n.id === id);
     if (!note || !newTitle.trim() || newTitle === note.title) return;
 
+    if (id.startsWith('temp-')) {
+      await handleSaveNote(id, newTitle.trim(), note.content);
+      return;
+    }
+
     try {
       const newId = await invoke('rename_note', { id, newTitle: newTitle.trim() });
       if (newId) {
@@ -191,6 +224,9 @@ function App() {
         onRestoreNote={handleRestoreNote}
         onPermanentlyDeleteNote={handlePermanentlyDeleteNote}
         onEmptyTrash={handleEmptyTrash}
+        updateInfo={updateInfo}
+        isUpdating={isUpdating}
+        onInstallUpdate={handleInstallUpdate}
       />
       {activeNote ? (
         <Editor 
@@ -208,6 +244,37 @@ function App() {
           </svg>
           <p>Select a note or create a new one</p>
         </div>
+      )}
+      {updateInfo && (
+        <button 
+          onClick={handleInstallUpdate}
+          disabled={isUpdating}
+          className="update-btn"
+          style={{
+            position: 'absolute',
+            bottom: '24px',
+            right: '24px',
+            zIndex: 1000,
+            fontSize: '12px',
+            padding: '8px 16px',
+            borderRadius: '24px',
+            backgroundColor: 'var(--accent)',
+            color: 'white',
+            border: 'none',
+            cursor: isUpdating ? 'wait' : 'pointer',
+            fontWeight: 'bold',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+            transition: 'transform 0.2s, box-shadow 0.2s'
+          }}
+          title={`Update to v${updateInfo.version}`}
+          onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.3)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)'; }}
+        >
+          {isUpdating ? 'Updating...' : `✨ Update Available (v${updateInfo.version})`}
+        </button>
       )}
     </div>
   );

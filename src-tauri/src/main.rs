@@ -15,8 +15,8 @@ struct Note {
 }
 
 fn get_notes_dir(app_handle: &AppHandle) -> Result<PathBuf, String> {
-    let mut path = app_handle.path().document_dir().map_err(|e| e.to_string())?;
-    path.push("NexNote");
+    let mut path = app_handle.path().app_data_dir().map_err(|e| e.to_string())?;
+    path.push("Notes");
     if !path.exists() {
         fs::create_dir_all(&path).map_err(|e| e.to_string())?;
     }
