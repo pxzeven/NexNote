@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { open } from '@tauri-apps/plugin-shell';
+import { confirm, message } from '@tauri-apps/plugin-dialog';
 import { SquarePen, Trash2, Search, Pin, ArchiveRestore, FileText, PinOff, Edit2, Copy, Monitor, Sun, Moon, Palette } from 'lucide-react';
 
 function Sidebar({ notes, trashedNotes, viewMode, setViewMode, theme, setTheme, activeNoteId, onSelectNote, onCreateNote, onDeleteNote, onDuplicateNote, onRenameNote, onRestoreNote, onPermanentlyDeleteNote, onEmptyTrash }) {
@@ -113,8 +114,9 @@ function Sidebar({ notes, trashedNotes, viewMode, setViewMode, theme, setTheme, 
             </button>
             <button 
               className="icon-btn" 
-              onClick={() => {
-                if(window.confirm('Are you sure you want to permanently delete all notes in the trash?')) {
+              onClick={async () => {
+                const confirmed = await confirm('Are you sure you want to permanently delete all notes in the trash?', { title: 'Empty Trash', kind: 'warning' });
+                if (confirmed) {
                   onEmptyTrash();
                 }
               }} 
@@ -180,7 +182,7 @@ function Sidebar({ notes, trashedNotes, viewMode, setViewMode, theme, setTheme, 
                         onChange={(e) => {
                           const val = e.target.value;
                           if (/[<>:"/\\|?*]/.test(val)) {
-                            alert('Note names cannot contain any of the following characters: < > : " / \\ | ? *');
+                            message('Note names cannot contain any of the following characters: < > : " / \\ | ? *', { title: 'Invalid Name', kind: 'error' });
                             return;
                           }
                           setEditTitle(val);
